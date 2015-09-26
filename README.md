@@ -1,3 +1,5 @@
+This is our teams copy of the ftc app. OP modes can be found in /FtcRobotController/src/main/java/com/qualcomm/ftcrobotcontroller/opmodes
+
 # ftc_app
 FTC Android Studio project to create FTC Robot Controller app.
 
