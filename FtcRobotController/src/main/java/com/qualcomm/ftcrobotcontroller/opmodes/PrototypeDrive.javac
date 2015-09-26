@@ -1,0 +1,59 @@
+package com.qualcomm.ftcrobotcontroller.opmodes;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
+
+#define sq(a) ((a)*(a))
+#define sqrt Math.sqrt
+#define bezier(t, p1, p2, p3) (sq(1-(t))*p1 + 2.0*(t)*(1-(t))*p2 + sq((t))*p3)
+
+public class PrototypeDrive extends OpMode
+{
+    DcMotor left_drive;
+    DcMotor right_drive;
+    
+    public PrototypeDrive() {}
+    
+    @Override public void init()
+    {
+        left_drive = hardwareMap.dcMotor.get("motor_2");
+        right_drive = hardwareMap.dcMotor.get("motor_1");
+        left_drive.setDirection(DcMotor.Direction.REVERSE);
+    }
+    
+    #define threshold 0.1 //TODO: figure out the actual radius, or if the deadzone is square
+    @Override public void loop()
+    {
+        float stick_x = gamepad1.left_stick_x;
+        float stick_y = -gamepad1.left_stick_y;
+        float left_power = stick_y+stick_x;
+        float right_power = stick_y-stick_x;
+        
+        float norm = (float) sqrt(sq(left_power)+sq(right_power));
+        if(norm < threshold)
+        {
+            left_power = 0;
+            right_power = 0;
+        }
+        #if 0
+        else
+        {
+            float speed = (norm-threshold)/(1-threshold);
+            float modifier = (norm > 1) 1 ? bezier(norm, 0, 0, 1)/norm;
+            left_power *= modifier;
+            right_power *= modifier;
+        }
+        #endif
+        
+        right_drive.setPower(right_power); //I think the SDK automatically range checks
+        left_drive.setPower(left_power);
+        
+        telemetry.addData("Text", "*** Robot Data***");
+        telemetry.addData("left power",  "left  pwr: " + String.format("%.2f", left_power));
+        telemetry.addData("right power", "right pwr: " + String.format("%.2f", right_power));
+    }
+    
+    @Override public void stop() {}
+}

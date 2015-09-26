@@ -23,6 +23,9 @@ Thumbs.db
 .idea
 .gradle
 build/
+backup/
+
+local.properties
 
 *ASUS_PC_01*
 
