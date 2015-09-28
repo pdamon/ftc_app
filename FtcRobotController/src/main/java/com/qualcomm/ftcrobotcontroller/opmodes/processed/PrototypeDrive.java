@@ -1,49 +1,67 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
-
-
-
-
-
-public class PrototypeDrive extends OpMode
+public class PrototypeDrive extends LinearOpMode
 {
     DcMotor left_drive;
     DcMotor right_drive;
 
     public PrototypeDrive() {}
 
-    @Override public void init()
+    @Override public void runOpMode()
+        throws InterruptedException
     {
         left_drive = hardwareMap.dcMotor.get("motor_2");
         right_drive = hardwareMap.dcMotor.get("motor_1");
         left_drive.setDirection(DcMotor.Direction.REVERSE);
-    }
 
 
-    @Override public void loop()
-    {
-        float stick_x = gamepad1.left_stick_x;
-        float stick_y = -gamepad1.left_stick_y;
-        float left_power = stick_y+stick_x;
-        float right_power = stick_y-stick_x;
 
-        float norm = (float) Math.sqrt(((left_power)*(left_power))+((right_power)*(right_power)));
-        if(norm < 0.1)
+        waitForStart();
+
+        for (;;)
         {
-            left_power = 0;
-            right_power = 0;
+            float stick_x = gamepad1.left_stick_x;
+            float stick_y = -gamepad1.left_stick_y;
+
+
+            float norm = (float) Math.sqrt(((stick_x)*(stick_x))+((stick_y)*(stick_y)));
+            if(norm < 0.15f)
+            {
+                stick_x = 0;
+                stick_y = 0;
+            }
+
+            else
+            {
+                float modifier = 1.0f;
+                float speed = (norm-0.15f)/(1-0.15f)/norm*modifier;
+                stick_x *= speed;
+                stick_y *= speed;
+            }
+
+
+            float left_power = stick_y+stick_x;
+            float right_power = stick_y-stick_x;
+
+            right_power = (((right_power) < -1.0f) ? -1.0f : (((right_power) > 1.0f) ? 1.0f : (right_power)));
+            left_power = (((left_power) < -1.0f) ? -1.0f : (((left_power) > 1.0f) ? 1.0f : (left_power)));
+
+            right_drive.setPower(right_power);
+            left_drive.setPower(left_power);
+
+            telemetry.addData("Text", "*** Robot Data***");
+            telemetry.addData("left power", String.format("%.2f", left_power));
+            telemetry.addData("right power", String.format("%.2f", right_power));
+            telemetry.addData("raw stick x", String.format("%.2f", gamepad1.left_stick_x));
+            telemetry.addData("raw stick y", String.format("%.2f", gamepad1.left_stick_y));
+            telemetry.addData("stick x", String.format("%.2f", stick_x));
+            telemetry.addData("stick y", String.format("%.2f", stick_y));
+
+            waitOneFullHardwareCycle();
         }
-        right_drive.setPower(right_power);
-        left_drive.setPower(left_power);
-
-        telemetry.addData("Text", "*** Robot Data***");
-        telemetry.addData("left power", "left  pwr: " + String.format("%.2f", left_power));
-        telemetry.addData("right power", "right pwr: " + String.format("%.2f", right_power));
     }
-
-    @Override public void stop() {}
 }
