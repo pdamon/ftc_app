@@ -6,17 +6,22 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 public class PrototypeDrive extends LinearOpMode
 {
-    DcMotor left_drive;
-    DcMotor right_drive;
+    DcMotor left_front_drive;
+    DcMotor right_front_drive;
+    DcMotor left_back_drive;
+    DcMotor right_back_drive;
 
     public PrototypeDrive() {}
 
     @Override public void runOpMode()
         throws InterruptedException
     {
-        left_drive = hardwareMap.dcMotor.get("motor_2");
-        right_drive = hardwareMap.dcMotor.get("motor_1");
-        left_drive.setDirection(DcMotor.Direction.REVERSE);
+        left_front_drive = hardwareMap.dcMotor.get("motor_4");
+        left_back_drive = hardwareMap.dcMotor.get("motor_3");
+        right_front_drive = hardwareMap.dcMotor.get("motor_2");
+        right_back_drive = hardwareMap.dcMotor.get("motor_1");
+        left_front_drive.setDirection(DcMotor.Direction.REVERSE);
+        left_back_drive.setDirection(DcMotor.Direction.REVERSE);
 
 
 
@@ -34,7 +39,6 @@ public class PrototypeDrive extends LinearOpMode
                 stick_x = 0;
                 stick_y = 0;
             }
-
             else
             {
                 float modifier = 1.0f;
@@ -43,15 +47,16 @@ public class PrototypeDrive extends LinearOpMode
                 stick_y *= speed;
             }
 
-
-            float left_power = stick_y+stick_x;
-            float right_power = stick_y-stick_x;
+            float left_power = stick_y-stick_x;
+            float right_power = stick_y+stick_x;
 
             right_power = (((right_power) < -1.0f) ? -1.0f : (((right_power) > 1.0f) ? 1.0f : (right_power)));
             left_power = (((left_power) < -1.0f) ? -1.0f : (((left_power) > 1.0f) ? 1.0f : (left_power)));
 
-            right_drive.setPower(right_power);
-            left_drive.setPower(left_power);
+            right_front_drive.setPower(right_power);
+            right_back_drive.setPower(right_power);
+            left_front_drive.setPower(left_power);
+            left_back_drive.setPower(left_power);
 
             telemetry.addData("Text", "*** Robot Data***");
             telemetry.addData("left power", String.format("%.2f", left_power));

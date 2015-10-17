@@ -1,0 +1,12 @@
+
+#define forearm_len 0.4572f
+#define upperarm_len 0.4572f
+
+#define elbow_radius .025
+#define shoulder_radius .025
+
+{
+    float dist = sqrt(sq(hand_x)+sq(hand_y));
+    if(hand_x > 0.0f || dist > )
+}
+
