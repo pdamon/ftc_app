@@ -15,7 +15,7 @@ public class Mk1Teleop extends LinearOpMode
     DcMotor shoulder;
     DcMotor elbow;
     
-    Servo[] hand = new Servo[2];
+    //Servo[] hand = new Servo[2];
     float[] hand_positions = new float[]{0.0f, 0.0f};
     
     public Mk1Teleop() {}
@@ -23,14 +23,14 @@ public class Mk1Teleop extends LinearOpMode
     void rotateContinuousHandServo(float omega, int servo, float dt)
     {
         omega = Range.clip(omega, -1.0f, 1.0f);
-        hand[servo].setPosition(omega);
+        //hand[servo].setPosition(omega);
     }
     
     void rotateHandServo(float omega, int servo, float dt)
     {
         hand_positions[servo] += omega*dt;
         hand_positions[servo] = Range.clip(hand_positions[servo], -1.0f, 1.0f);
-        hand[servo].setPosition(hand_positions[servo]);
+        //hand[servo].setPosition(hand_positions[servo]);
     }
     
     float deadZone(float val)
@@ -50,13 +50,13 @@ public class Mk1Teleop extends LinearOpMode
     @Override public void runOpMode()
         throws InterruptedException
     {
-        left_drive  = hardwareMap.dcMotor.get("motor_1");
-        right_drive = hardwareMap.dcMotor.get("motor_2");
-        shoulder    = hardwareMap.dcMotor.get("motor_3");
-        elbow       = hardwareMap.dcMotor.get("motor_4");
-
-        hand[0] = hardwareMap.servo.get("servo_1");
-        hand[1] = hardwareMap.servo.get("servo_2");
+        left_drive  = hardwareMap.dcMotor.get("left_d");
+        right_drive = hardwareMap.dcMotor.get("right_d");
+        shoulder    = hardwareMap.dcMotor.get("shoulder");
+        elbow       = hardwareMap.dcMotor.get("elbow");
+        right_drive.setDirection(DcMotor.Direction.REVERSE);
+        //hand[0] = hardwareMap.servo.get("servo_1");
+        //hand[1] = hardwareMap.servo.get("servo_2");
 
         waitForStart();
 
@@ -74,7 +74,7 @@ public class Mk1Teleop extends LinearOpMode
             old_time = new_time;
             
             //drive
-            float stick_x = gamepad1.left_stick_x;
+            float stick_x = -gamepad1.left_stick_x;
             float stick_y = -gamepad1.left_stick_y;
             float norm = (float) Math.sqrt(((stick_x)*(stick_x))+((stick_y)*(stick_y)));
             if(norm < threshold)
@@ -103,14 +103,14 @@ public class Mk1Teleop extends LinearOpMode
         
             //arm
             float stick_s = -gamepad2.left_stick_y;
-            float stick_e = -gamepad2.left_stick_y;
+            float stick_e = -gamepad2.right_stick_y;
             float s_power = deadZone(stick_s);
             float e_power = deadZone(stick_e);
 
             s_power = Range.clip(s_power, -1.0f, 1.0f);
             e_power = Range.clip(e_power, -1.0f, 1.0f);
 
-            e_power *= 0.5;
+            //e_power *= 0.5;
             shoulder.setPower(s_power);
             elbow.setPower(e_power);
 
