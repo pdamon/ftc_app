@@ -1,12 +1,44 @@
 
+//TODO: check arm range, float trig functions
+
 #define forearm_len 0.4572f
 #define upperarm_len 0.4572f
 
 #define elbow_radius .025
-#define shoulder_radius .025
+#define winch_radius .025
 
+#define elbow_0 0 //the winch rotation where the winch length is 0
+#define shoulder_0 0 //the shoulder rotation where the shoulder is pointing in the +x axis
+#define shoulder_min (shoulder_0)
+#define shoulder_max (shoulder_0+pi)
+
+//derived constants:
+#define elbow_1 (elbow_0+sqrt(sq(upperarm_len)-sq(elbow_radius))/winch_radius) //the winch rotation where the arm switches modes
+#define elbow_2 (elbow_1+(2.0*pi-acos(elbow_radius/upperarm_len)-acos(elbow_radius/forearm_len))*elbow_radius/winch_radius) //the winch rotation where the arm is completely closed (toward the spring side)
+
+float[] getArmTargets(float hand_x, float hand_y) //inputs: hand_x and hand_y are the cordinates of the wanted hand position
 {
+    float[] arm_targets = new float[2]; //[0] -> shoulder, [1] 0 -> elbow
+    
     float dist = sqrt(sq(hand_x)+sq(hand_y));
-    if(hand_x > 0.0f || dist > )
+    float shoulder_offset = acos((sq(upperarm_len)+sq(dist)-sq(forearm_len))/(2.0f*dist*upperarm_len));
+    arm_targets[0] = atan2(hand_y, hand_x)+shoulder_0;
+
+    arm_targets[1] = dist/winch_radius+elbow_0;
+    float shoulder_target = arm_targets[0]+shoulder_offset
+    if(arm_targets[1] < elbow_1 && shoulder_target < shoulder_max)
+    {
+        arm_targets[0] += shoulder_target;
+    }
+    else
+    {
+        float elbow_offset = acos((sq(upperarm_len)+sq(forearm_len)-sq(dist))/(2.0f*upperarm_len*forearm_len));
+        arm_targets[1] = elbow_2-elbow_offset*elbow_radius/winch_radius;
+        arm_targets[0] -= shoulder_offset;
+    }
+
+    //outputs: arm_targets[1] and arm_targets[0] are the rotations of the elbow/winch and shoulder outputs in radians, respectively
+    //arm_targets[0] is NaN if the target position is outside of the range
+    return arm_targets;
 }
 
